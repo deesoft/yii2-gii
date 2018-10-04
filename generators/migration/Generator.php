@@ -2,11 +2,14 @@
 
 namespace dee\gii\generators\migration;
 
+use ReflectionClass;
 use Yii;
+use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Schema;
+use yii\db\TableSchema;
 use yii\gii\CodeFile;
-use yii\db\Expression;
+use yii\helpers\Inflector;
 
 /**
  * This generator will generate migration file for the specified database table.
@@ -23,6 +26,7 @@ class Generator extends \yii\gii\Generator
     public $tableName;
     public $generateRelations = true;
     public $useTablePrefix = false;
+    public $sparateOutput = false;
 
     /**
      * @inheritdoc
@@ -30,7 +34,7 @@ class Generator extends \yii\gii\Generator
     public function init()
     {
         parent::init();
-        $this->migrationTime = gmdate('ymd_H0101');
+        $this->migrationTime = date('ymd_H0101');
     }
 
     /**
@@ -56,7 +60,9 @@ class Generator extends \yii\gii\Generator
     {
         return array_merge(parent::rules(), [
             [['db', 'migrationPath', 'tableName', 'migrationName', 'migrationTime'], 'filter', 'filter' => 'trim'],
-            [['db', 'migrationPath', 'tableName', 'migrationName', 'migrationTime'], 'required'],
+            [['db', 'migrationPath', 'tableName', 'migrationTime'], 'required'],
+            [['migrationName', ], 'required', 'when' => function($model){return !$model->sparateOutput;},
+                'whenClient' => "function (attribute, value) {return !\$('#generator-sparateoutput').is(':checked');}"],
             [['db', 'migrationName'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
             [['tableName'], 'match', 'pattern' => '/^(\w+\.)?([\w\*]+)$/', 'message' => 'Only word characters, and optionally an asterisk and/or a dot are allowed.'],
             [['migrationTime'], 'match', 'pattern' => '/^(\d{6}_\d{6})/', 'message' => 'Only format xxxxxx_xxxxxx are allowed.'],
@@ -64,6 +70,7 @@ class Generator extends \yii\gii\Generator
             [['tableName'], 'validateTableName'],
             [['generateRelations'], 'boolean'],
             [['useTablePrefix'], 'boolean'],
+            [['sparateOutput'], 'boolean'],
         ]);
     }
 
@@ -79,6 +86,7 @@ class Generator extends \yii\gii\Generator
             'migrationName' => 'Migration Name',
             'migrationTime' => 'Migration Time',
             'generateRelations' => 'Generate Relations',
+            'sparateOutput' => 'Spare Migration File'
         ]);
     }
 
@@ -103,6 +111,7 @@ class Generator extends \yii\gii\Generator
                 should consider the <code>tablePrefix</code> setting of the DB connection. For example, if the
                 table name is <code>tbl_post</code> and <code>tablePrefix=tbl_</code>, the migration
                 will use the table name as <code>{{%post}}</code>.',
+            'sparateOutput' => 'Generate migration file for each table.',
         ]);
     }
 
@@ -156,7 +165,9 @@ class Generator extends \yii\gii\Generator
             } else {
                 $primary = null;
             }
+            
             $tables[$tableSchema->name] = [
+                'nameId' => Inflector::camel2id($tableName, '_'),
                 'name' => $this->generateTableName($tableSchema->name),
                 'columns' => $columns,
                 'primary' => $primary,
@@ -164,13 +175,29 @@ class Generator extends \yii\gii\Generator
             ];
         }
 
-        $migrationName = 'm' . $this->migrationTime . '_' . $this->migrationName;
-        $file = rtrim(Yii::getAlias($this->migrationPath), '/') . "/{$migrationName}.php";
-        $files = new CodeFile($file, $this->render('migration.php', [
-                'tables' => $this->reorderTables($tables, $relations),
-                'migrationName' => $migrationName,
-        ]));
-        return [$files];
+        $files = [];
+        $reorderTables = $this->reorderTables($tables, $relations);
+        if ($this->sparateOutput) {
+            $dt = date_create_from_format('ymd_His', $this->migrationTime);
+            $timestamp = $dt->getTimestamp();
+            foreach ($reorderTables as $table) {
+                $migrationName = 'm' . date('ymd_His', $timestamp++) . "_create_{$table['nameId']}_table";
+                $file = rtrim(Yii::getAlias($this->migrationPath), '/') . "/{$migrationName}.php";
+                $files[] = new CodeFile($file, $this->render('migration.php', [
+                        'tables' => [$table],
+                        'migrationName' => $migrationName,
+                ]));
+            }
+        } else {
+            $migrationName = 'm' . $this->migrationTime . '_' . $this->migrationName;
+            $file = rtrim(Yii::getAlias($this->migrationPath), '/') . "/{$migrationName}.php";
+            $files[] = new CodeFile($file, $this->render('migration.php', [
+                    'tables' => $reorderTables,
+                    'migrationName' => $migrationName,
+            ]));
+        }
+
+        return $files;
     }
 
     /**
@@ -220,14 +247,14 @@ class Generator extends \yii\gii\Generator
 
     /**
      *
-     * @param \yii\db\ColumnSchema $column
+     * @param ColumnSchema $column
      * @return array
      */
     public function getSchemaType($column)
     {
         if ($this->constans === null) {
             $this->constans = [];
-            $ref = new \ReflectionClass(Schema::className());
+            $ref = new ReflectionClass(Schema::className());
             foreach ($ref->getConstants() as $constName => $constValue) {
                 if (strpos($constName, 'TYPE_') === 0) {
                     $this->constans[$constValue] = '$this->' . $constValue;
@@ -257,7 +284,7 @@ class Generator extends \yii\gii\Generator
         } else {
             $result = $column->dbType;
             if (!empty($size)) {
-                $result.= '(' . implode(',', $size) . ')';
+                $result .= '(' . implode(',', $size) . ')';
             }
             if (!$column->allowNull) {
                 $result .= ' NOT NULL';
@@ -273,7 +300,7 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Generates validation rules for the specified table.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param TableSchema $table the table schema
      * @return array the generated validation rules
      */
     protected function generateColumns($table)
@@ -324,7 +351,7 @@ class Generator extends \yii\gii\Generator
                 $fks = implode(']], [[', array_keys($refs));
                 $pks = implode(']], [[', array_values($refs));
 
-                $relation = "FOREIGN KEY ([[$fks]]) REFERENCES $refTableName ([[$pks]]) ON DELETE CASCADE ON UPDATE CASCADE";
+                $relation = "FOREIGN KEY ([[$fks]]) REFERENCES $refTableName ([[$pks]]) ON DELETE RESTRICT ON UPDATE RESTRICT";
                 $relations[$tableName][$refTable] = $relation;
             }
         }
