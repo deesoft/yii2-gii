@@ -14,6 +14,10 @@ use yii\db\Schema;
 
 class <?= $migrationName ?> extends \yii\db\Migration
 {
+
+    /**
+     * {@inheritdoc}
+     */
     public function up()
     {
         $tableOptions = null;
@@ -22,24 +26,27 @@ class <?= $migrationName ?> extends \yii\db\Migration
         }
 <?php foreach ($tables as $table): ?>
         
-        $this->createTable('<?= $table['name'] ?>', [
+        $this->createTable('<?= addslashes($table['name']) ?>', [
 <?php foreach ($table['columns'] as $column => $definition): ?>
-            <?= "'$column' => $definition"?>,
+            '<?= addslashes($column)?>' => <?= $definition?>,
 <?php endforeach;?>
 <?php if(isset($table['primary'])): ?>
-            <?= "'{$table['primary']}'" ?>,
+            '<?= addslashes($table['primary']) ?>',
 <?php endif; ?>
 <?php foreach ($table['relations'] as $definition): ?>
-            <?= "'$definition'" ?>,
+            '<?= addslashes($definition) ?>',
 <?php endforeach;?>
         ], $tableOptions);
 <?php endforeach;?>
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function down()
     {
 <?php foreach (array_reverse($tables) as $table): ?>
-        $this->dropTable('<?= $table['name'] ?>');
+        $this->dropTable('<?= addslashes($table['name']) ?>');
 <?php endforeach;?>
     }
 }
