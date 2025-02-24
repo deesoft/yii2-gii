@@ -23,6 +23,7 @@ use yii\db\BaseActiveRecord;
 class Generator extends \yii\gii\generators\crud\Generator
 {
     public $controllerID;
+    public $modelNsSearch = [];
     private $_viewPath;
     private $_controllerClass;
 
@@ -138,6 +139,31 @@ class Generator extends \yii\gii\generators\crud\Generator
             $this->_viewPath = $module->getViewPath() . '/' . $id;
         }
         return $this->_viewPath;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function autoCompleteData()
+    {
+        return [
+            'modelClass' => function () {
+                $result = [];
+                foreach ($this->modelNsSearch as $ns) {
+                    $ns = trim($ns, '\\');
+                    $path = Yii::getAlias('@' . str_replace('\\', '/', $ns));
+                    $n = strlen($path) + 1;
+                    $files = FileHelper::findFiles($path, ['only' => ['*.php'], 'recursive' => true]);
+                    foreach ($files as $file) {
+                        $class = $ns . '\\' . str_replace('/', '\\', substr($file, $n, -4));
+                        if (class_exists($class) && is_subclass_of($class, ActiveRecord::class)) {
+                            $result[] = $class;
+                        }
+                    }
+                }
+                return $result;
+            },
+        ];
     }
 
     /**
