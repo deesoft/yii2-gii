@@ -34,7 +34,7 @@ const form = useForm('create<?= $modelClass?>', {
                 <form @submit.prevent="form.post($page.url)">
                     <v-card>
                         <v-toolbar density="default">
-                            <v-btn density="compact" icon="mdi-arrow-left" @click="URL.back()">
+                            <v-btn density="compact" icon="mdi-arrow-left" @click="toUrl.back()">
                             </v-btn>
                             <v-toolbar-title >Create <?= $modelName ?></v-toolbar-title>
                         </v-toolbar> 

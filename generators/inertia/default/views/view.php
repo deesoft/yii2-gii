@@ -35,7 +35,7 @@ const form = useForm({
                 <form >
                     <v-card>
                         <v-toolbar density="default">
-                            <v-btn density="compact" icon="mdi-arrow-left" @click="URL.back()"></v-btn>
+                            <v-btn density="compact" icon="mdi-arrow-left" @click="toUrl.back()"></v-btn>
                             <v-toolbar-title >View <?= $modelName ?></v-toolbar-title>
                         </v-toolbar> 
                         <v-card-text>

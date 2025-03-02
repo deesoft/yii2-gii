@@ -40,7 +40,7 @@ const form = useForm(`update<?= $modelClass?>:<?= $formIds ?>`,{
                 <form @submit.prevent="form.post($page.url)">
                     <v-card>
                         <v-toolbar density="default">
-                            <v-btn density="compact" icon="mdi-arrow-left" @click="URL.back()"></v-btn>
+                            <v-btn density="compact" icon="mdi-arrow-left" @click="toUrl.back()"></v-btn>
                             <v-toolbar-title >Update <?= $modelName ?></v-toolbar-title>
                         </v-toolbar> 
                         <v-progress-linear indeterminate v-if="form.processing"></v-progress-linear>
