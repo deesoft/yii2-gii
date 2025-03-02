@@ -15,6 +15,7 @@ $formIds = implode('-', array_map(function($pk){
 }, $pks));
 ?>
 <script setup>
+const {toUrl} = window;
 
 const props = defineProps({
     model: Object,    

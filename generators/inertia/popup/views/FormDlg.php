@@ -13,6 +13,7 @@ $pks = $class::primaryKey();
 ?>
 <script setup>
 import { router } from "@inertiajs/vue3";
+const {toUrl} = window;
 
 const state = reactive({
     show: false,

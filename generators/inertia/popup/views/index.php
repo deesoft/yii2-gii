@@ -18,6 +18,7 @@ $urlParams = implode(', ', $urlParams);
 <script setup>
 import { router } from "@inertiajs/vue3";
 import FormDlg from './FormDlg.vue';
+const {toUrl} = window;
 
 const props = defineProps({
     data: Object,    

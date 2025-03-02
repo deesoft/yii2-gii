@@ -17,6 +17,7 @@ $urlParams = implode(', ', $urlParams);
 ?>
 <script setup>
 import { router } from "@inertiajs/vue3";
+const {toUrl} = window;
 
 const props = defineProps({
     data: Object,    

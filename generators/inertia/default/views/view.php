@@ -10,6 +10,7 @@ $modelClass = StringHelper::basename($generator->modelClass);
 $baseRoute = $generator->controllerID;
 ?>
 <script setup>
+const {toUrl} = window;
 
 const props = defineProps({
     model: Object,    
