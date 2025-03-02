@@ -31,13 +31,13 @@ const form = useForm(`update<?= $modelClass?>:<?= $formIds ?>`,{
         <v-row dense>
             <v-col cols="12">
                 <p>
-                    <Link :href="toUrl('')" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> / 
+                    <Link :href="toUrl.base" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> /
                     <Link :href="toUrl('<?= $baseRoute ?>')" >List <?= $modelName ?></Link> /
                     <span >Update <?= $modelName ?></span>
                 </p>          
             </v-col>
             <v-col cols="12">
-                <form @submit.prevent="form.post(URL.current)">
+                <form @submit.prevent="form.post($page.url)">
                     <v-card>
                         <v-toolbar density="default">
                             <v-btn density="compact" icon="mdi-arrow-left" @click="URL.back()"></v-btn>

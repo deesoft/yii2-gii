@@ -35,7 +35,7 @@ $count++;
 
 function deleteRow(row){
     confirm('Yakin akan menghapus data ini?').then(()=>{
-        axios.post(toUrl('<?= $baseRoute ?>/delete', {<?= $urlParams ?>}));
+        axios.post(toUrl.post('<?= $baseRoute ?>/delete', {<?= $urlParams ?>}));
     });
 }
 </script>
@@ -44,7 +44,7 @@ function deleteRow(row){
         <v-row dense>
             <v-col cols="12">
                 <p>
-                    <Link :href="toUrl('')" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> / 
+                    <Link :href="toUrl.base" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> /
                     <span >List <?= $modelName ?></span>
                 </p>
             </v-col>

@@ -41,7 +41,7 @@ function open(row){
     state.show = true;
 }
 
-const createUrl = toUrl('<?= $baseRoute ?>/create');
+const createUrl = toUrl.post('<?= $baseRoute ?>/create');
 function save(){
 <?php
     $ifs = $ps = [];
@@ -55,7 +55,7 @@ function save(){
     }
     $paramUrl = implode(', ', $ps);
 ?>
-    let url = <?= $if ?> ? toUrl('<?= $baseRoute ?>/update', {<?= $paramUrl?>}) : createUrl;
+    let url = <?= $if ?> ? toUrl.post('<?= $baseRoute ?>/update', {<?= $paramUrl?>}) : createUrl;
     axios.post(url, form.data()).then(r => {
         state.show = false;
         router.reload();
