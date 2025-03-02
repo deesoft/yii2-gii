@@ -26,7 +26,7 @@ const form = useForm({
         <v-row dense>
             <v-col cols="12">
                 <p>
-                    <Link :href="toUrl.base" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> /
+                    <Link :href="toUrl.home" class="text-decoration-none"><v-icon>mdi-home</v-icon></Link> /
                     <Link :href="toUrl('<?= $baseRoute ?>')" >List <?= $modelName ?></Link> /
                     <span >View <?= $modelName ?></span>
                 </p>           
