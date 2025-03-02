@@ -39,7 +39,7 @@ if (!YII_ENV_TEST) {
         'class' => 'yii\gii\Module',
         'generators' => [
             'crud' => ['class' => 'dee\gii\generators\crud\Generator'],
-            'angular' => ['class' => 'dee\gii\generators\angular\Generator'],
+            'inertia' => ['class' => 'dee\gii\generators\inertia\Generator'],
             'mvc' => ['class' => 'dee\gii\generators\mvc\Generator'],
             'migration' => ['class' => 'dee\gii\generators\migration\Generator'],
         ]
