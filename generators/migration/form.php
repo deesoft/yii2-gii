@@ -12,3 +12,4 @@ echo $form->field($generator, 'migrationName');
 echo $form->field($generator, 'db');
 echo $form->field($generator, 'useTablePrefix')->checkbox();
 echo $form->field($generator, 'generateRelations')->checkbox();
+echo $form->field($generator, 'sparateOutput')->checkbox();
