@@ -5,7 +5,7 @@ use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var yii\widgets\ActiveForm $form */
-/** @var dee\gii\generators\model\Generator $generator */
+/** @var yii\gii\generators\model\Generator $generator */
 
 echo $form->field($generator, 'db');
 echo $form->field($generator, 'useTablePrefix')->checkbox();
@@ -32,6 +32,7 @@ echo $form->field($generator, 'generateJunctionRelationMode')->dropDownList([
     Generator::JUNCTION_RELATION_VIA_MODEL => 'Via Model',
 ]);
 echo $form->field($generator, 'generateRelationsFromCurrentSchema')->checkbox();
+echo $form->field($generator, 'generateRelationNameFromDestinationTable')->checkbox();
 echo $form->field($generator, 'useClassConstant')->checkbox();
 echo $form->field($generator, 'generateLabelsFromComments')->checkbox();
 echo $form->field($generator, 'generateQuery')->checkbox();
