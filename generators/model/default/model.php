@@ -22,9 +22,6 @@ echo "<?php\n";
 namespace <?= $generator->ns ?>;
 
 use Yii;
-<?php foreach(array_keys($behaviors) as $useClass): ?>
-use <?= $useClass ?>;
-<?php endforeach; ?>
 
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
@@ -175,9 +172,9 @@ endif
     public function behaviors()
     {
         return [
-<?= implode("", array_map(function($c){
-                return "            $c,\n";
-            }, array_values($behaviors))) ?>
+<?php foreach($behaviors as $class): ?>
+            <?= $class ?>,
+<?php endforeach; ?>
         ];
     }
 <?php endif; ?>

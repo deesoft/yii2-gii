@@ -7,9 +7,11 @@
 
 namespace dee\gii\generators\model;
 
-use yii\base\NotSupportedException;
+use Yii;
 use yii\db\Schema;
+use yii\gii\CodeFile;
 use yii\db\TableSchema;
+use yii\base\NotSupportedException;
 use yii\gii\generators\model\Generator as BaseModelGenerator;
 
 /**
@@ -77,12 +79,21 @@ class Generator extends BaseModelGenerator
     {
         $types = [];
         $lengths = [];
+        $nullable = [];
+        $defaultValues = [];
         foreach ($table->columns as $column) {
             if ($column->autoIncrement || in_array($column->name, $this->excludeColumns)) {
                 continue;
             }
-            if (!$column->allowNull && $column->defaultValue === null && $column->name != 'number') {
+            if (!$column->allowNull && $column->defaultValue === null) {
                 $types['required'][] = $column->name;
+            } elseif ($column->allowNull && $column->defaultValue === null) {
+                $nullable[] = $column->name;
+            } elseif (is_scalar($column->defaultValue)) {
+                if (array_key_exists($column->defaultValue, $defaultValues)) {
+                    $defaultValues[$column->defaultValue] = [];
+                }
+                $defaultValues[$column->defaultValue][] = $column->name;
             }
             switch ($column->type) {
                 case Schema::TYPE_SMALLINT:
@@ -116,8 +127,20 @@ class Generator extends BaseModelGenerator
             }
         }
         $rules = [];
-
+        if (!empty($nullable)) {
+            $rules[] = "[['" . implode("', '", $nullable) . "'], 'default', 'value' => null]";
+        }
+        if (!empty($defaultValues)) {
+            foreach ($defaultValues as $defaultValue => $defaultValueColumns) {
+                $defaultValue = is_numeric($defaultValue) ? $defaultValue : "'$defaultValue'";
+                $rules[] = "[['" . implode("', '", $defaultValueColumns) . "'], 'default', 'value' => $defaultValue]";
+            }
+        }
+        $driverName = $this->getDbDriverName();
         foreach ($types as $type => $columns) {
+            // if ($driverName === 'pgsql' && $type === 'integer') {
+            //     $rules[] = "[['" . implode("', '", $columns) . "'], 'default', 'value' => null]";
+            // }
             $rules[] = "[['" . implode("', '", $columns) . "'], '$type']";
         }
         foreach ($lengths as $length => $columns) {
@@ -185,10 +208,10 @@ class Generator extends BaseModelGenerator
         $columns = $table->columns;
         $result = [];
         if(isset($columns['created_by'], $columns['updated_by'])){
-            $result['yii\behaviors\BlameableBehavior'] = 'BlameableBehavior::class';
+            $result[] = $this->generateClassNameResolution('\yii\behaviors\BlameableBehavior');
         }
         if(isset($columns['created_at'], $columns['updated_at'])){
-            $result['yii\behaviors\TimestampBehavior'] = 'TimestampBehavior::class';
+            $result[] = $this->generateClassNameResolution('\yii\behaviors\TimestampBehavior');
         }
         return $result;
     }
