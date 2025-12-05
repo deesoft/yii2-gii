@@ -322,10 +322,11 @@ class Generator extends \yii\gii\Generator
                 unset($refs[0]);
 
                 $fks = implode(']], [[', array_keys($refs));
+                $fieldNames = implode('|', array_keys($refs));
                 $pks = implode(']], [[', array_values($refs));
 
                 $relation = "FOREIGN KEY ([[$fks]]) REFERENCES $refTableName ([[$pks]]) ON DELETE CASCADE ON UPDATE CASCADE";
-                $relations[$tableName][$refTable] = $relation;
+                $relations[$tableName][$fieldNames] = $relation;
             }
         }
         return $relations;
